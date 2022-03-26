@@ -68,6 +68,7 @@ class User extends Authenticatable implements HasMedia
         'password',
         'api_token',
         'device_token',
+        'account_type',
     ];
     /**
      * The attributes that should be casted to native types.
@@ -187,5 +188,4 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->belongsToMany(EProvider::class, 'e_provider_users');
     }
-
 }

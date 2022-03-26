@@ -10,6 +10,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Company;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
 use App\Repositories\RoleRepository;
@@ -64,7 +65,6 @@ class UserAPIController extends Controller
         } catch (Exception $e) {
             return $this->sendError($e->getMessage(), 200);
         }
-
     }
 
     /**
@@ -85,6 +85,9 @@ class UserAPIController extends Controller
             $user->device_token = $request->input('device_token', '');
             $user->password = Hash::make($request->input('password'));
             $user->api_token = Str::random(60);
+            if ($request->has('account_type')) {
+                $user->account_type = $request->input('account_type');
+            }
             $user->save();
 
             $defaultRoles = $this->roleRepository->findByField('default', '1');
@@ -96,6 +99,15 @@ class UserAPIController extends Controller
             foreach (getCustomFieldsValues($customFields, $request) as $value) {
                 $user->customFieldsValues()
                     ->updateOrCreate(['custom_field_id' => $value['custom_field_id']], $value);
+            }
+
+            if ($user->account_type == 'company') {
+                Company::create([
+                    'company_name' => $request->company_name,
+                    'rc' => $request->rc,
+                    'offer_services' => serialize($request->offer_services),
+                    'user_id' => $user->id
+                ]);
             }
         } catch (ValidationException $e) {
             return $this->sendError(array_values($e->errors()));
@@ -119,7 +131,6 @@ class UserAPIController extends Controller
             $this->sendError($e->getMessage(), 200);
         }
         return $this->sendResponse($user['name'], 'User logout successfully');
-
     }
 
     function user(Request $request)
@@ -136,7 +147,8 @@ class UserAPIController extends Controller
     function settings(Request $request)
     {
         $settings = setting()->all();
-        $settings = array_intersect_key($settings,
+        $settings = array_intersect_key(
+            $settings,
             [
                 'default_tax' => '',
                 'default_currency' => '',
@@ -232,6 +244,5 @@ class UserAPIController extends Controller
         } catch (Exception $e) {
             return $this->sendError("Email not configured in your admin panel settings");
         }
-
     }
 }
