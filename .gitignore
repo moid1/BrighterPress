@@ -15,3 +15,4 @@ yarn-error.log
 _ide_helper*
 /.eslintrc.js
 /yarn.lock
+.env
