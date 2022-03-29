@@ -11,6 +11,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Company;
+use App\Models\Rider;
 use App\Models\User;
 use App\Repositories\CustomFieldRepository;
 use App\Repositories\RoleRepository;
@@ -107,6 +108,17 @@ class UserAPIController extends Controller
                     'rc' => $request->rc,
                     'offer_services' => serialize($request->offer_services),
                     'user_id' => $user->id
+                ]);
+            } else if ($user->account_type == 'rider') {
+                $company_id = -1;
+                if ($request->has('company_id')) {
+                    $company_id = $request->company_id;
+                }
+                Rider::create([
+                    'state' => $request->state,
+                    'cities' => serialize($request->cities),
+                    'user_id' => $user->id,
+                    'company_id' => $company_id
                 ]);
             }
         } catch (ValidationException $e) {
