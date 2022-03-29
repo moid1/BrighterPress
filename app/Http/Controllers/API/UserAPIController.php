@@ -57,6 +57,8 @@ class UserAPIController extends Controller
                 $user = auth()->user();
                 $user->device_token = $request->input('device_token', '');
                 $user->save();
+                $companyData = Company::where('user_id', $user->id)->first();
+                $user['company'] = $companyData;
                 return $this->sendResponse($user, 'User retrieved successfully');
             } else {
                 return $this->sendError(__('auth.failed'), 200);
