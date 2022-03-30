@@ -35,6 +35,9 @@ Route::get('user', 'API\UserAPIController@user');
 Route::get('logout', 'API\UserAPIController@logout');
 Route::get('settings', 'API\UserAPIController@settings');
 
+//getting Drivers for company
+
+Route::get('get-drivers/{id}','API\RiderAPIController@getCompanyRiders');
 
 Route::resource('e_provider_types', 'API\EProviderTypeAPIController');
 Route::resource('e_providers', 'API\EProviderAPIController');
